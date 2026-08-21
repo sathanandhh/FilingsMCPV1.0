@@ -178,15 +178,19 @@ def pull_company(name, root, *, years, client, categories=None, ticker=None):
     back untouched and nothing is downloaded — picking for the caller is how a
     model ends up with a library for the wrong Escorts.
 
-    Pass a numeric scrip code with an explicit `ticker` to skip resolution.
+    Pass a numeric scrip code as `name` or `ticker` to skip resolution.
     """
     specs = _specs(categories)
     name = str(name).strip()
+    ticker = str(ticker).strip() if ticker else None
 
+    # FIX: Check if either name or ticker is a numeric scrip code to skip resolution
     if name.isdigit():
-        if not ticker:
-            raise ValueError("a scrip code needs an explicit ticker for the folder name")
-        scrip_code, folder = name, ticker
+        scrip_code = name
+        folder = ticker or scrip_code
+    elif ticker and ticker.isdigit():
+        scrip_code = ticker
+        folder = name
     else:
         matches = _resolve(name, client)
         if not matches:
